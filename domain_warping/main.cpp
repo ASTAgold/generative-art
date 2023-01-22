@@ -25,13 +25,13 @@ int main()
 {
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    // FastNoiseLite warping;
-    // warping.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+    FastNoiseLite warping;
+    warping.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 
 	int framecount = 0;
     int width = 600;
     int height = 600;
-    int cell_size = 1;
+    int cell_size = 4;
     float scale = 4;
     int implitude = 40; 
 
@@ -75,9 +75,9 @@ int main()
         // update part
         for (int i = 0; i < cols; ++i) {
             for (int j = 0; j < rows; ++j) {
-                float warp_x = 0.4*sin(i*0.05);
-                float warp_y = sin(i);
-                cells[i][j] = noise.GetNoise(i*scale + 20*warp_x, j*scale + 20*warp_y, (float)framecount);
+                float warp_x = warping.GetNoise((float)i*10,(float)j*10, (float)framecount);
+                float warp_y = noise.GetNoise((float)i*10+200,(float)j*10+200, (float)framecount);
+                cells[i][j] = noise.GetNoise(i*scale + 20*warp_x, j*scale + 20*warp_y);
             }
         }
 

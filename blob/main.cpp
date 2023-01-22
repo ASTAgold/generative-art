@@ -12,12 +12,13 @@ int main()
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 
 	int framecount = 0;
-    int width = 800;
-    int height = 800;
-    int pt_nbr = 4000;
-    int r = 250;
-    float step = 0.2;
-    int implitude = 150;
+    int width = 600;
+    int height = 600;
+    int pt_nbr = 2000;
+    int r = 160;
+
+    float resolution = 0.8;
+    int implitude = 140;
 
     float mov_angle = (2*PI)/pt_nbr;
 
@@ -37,13 +38,28 @@ int main()
         }
 
         // update part
-        for (int i = 1; i <= pt_nbr-1; i++){
+        for (int i = 1; i <= pt_nbr; i++){
             float angle = i*mov_angle;
-            float x = r*cos(angle) + implitude*noise.GetNoise(i*step, (float)1, (float)framecount);
-            float y = r*sin(angle) + implitude*noise.GetNoise(i*step, (float)1000, (float)framecount);
-            shape[i].position = sf::Vector2f(x+width/2, y+height/2);
+
+            float x = r*cos(angle) + width/2;
+            float y = r*sin(angle) + height/2;
+            float delta = Remap(noise.GetNoise(x*resolution+(float)framecount*2, y*resolution+(float)framecount*2), -1, 1, -implitude, implitude);
+
+            shape[i].position = sf::Vector2f(x+delta*cos(angle), y+delta*sin(angle));
         }
-            shape[pt_nbr].position = shape[1].position;
+            // shape[pt_nbr].position = shape[1].position;
+        // smothen the last quarter
+        // int interpolation_start = floor(pt_nbr*11/12);
+        // for (int i = interpolation_start; i <= pt_nbr; ++i){
+        //     float angle = i*mov_angle;
+
+        //     float amount = Remap(i,interpolation_start,pt_nbr,0,1);
+        //     float inter_x = r*cos(angle) + Lerp(delta[i].x, delta[pt_nbr - i +1].x, amount);
+        //     float inter_y = r*sin(angle) + Lerp(delta[i].y, delta[pt_nbr - i +1].y, amount);
+
+        //     shape[i].position = sf::Vector2f(inter_x, inter_y);
+        // }
+
 
         window.clear();
 
@@ -53,8 +69,6 @@ int main()
         window.display();
         
         //std::cout << std::to_string(framecount) + " \n";
-
-
         framecount++;
 
     }
