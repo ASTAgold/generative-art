@@ -1,9 +1,14 @@
 
 attractor/mmm
 SFML-Collection/
+testing/
 movio/
 
 *.mp4
 *.gif
 *.o
 *.out
+*.xml
+
+.project
+.cproject
