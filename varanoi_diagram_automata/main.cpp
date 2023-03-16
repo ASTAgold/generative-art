@@ -58,7 +58,7 @@ int main()
 
         // update part
         for (int i = 0; i < seed_nbr; ++i){
-            seed_pos[i] = sf::Vector2i(rand() % WIDTH, rand() % HEIGHT);
+            seed_pos[i] = {rand() % WIDTH, rand() % HEIGHT};
             // Remap(seed_pos[i].x,0,WIDTH,0,255)
             // seed_color[i] = sf::Color(Remap(seed_pos[i].x,0,WIDTH,0,255), Remap(seed_pos[i].y,0,WIDTH,0,255), Remap(seed_pos[i].x - seed_pos[i].y,-HEIGHT,WIDTH,0,255));
             // seed_color[i] = sf::Color(Remap(cos(seed_pos[i].x),-1,1,0,255), 200, Remap(cos(seed_pos[i].y),-1,1,0,255));

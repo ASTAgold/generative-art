@@ -8,21 +8,24 @@ struct boid {
 };
 
 int framecount = 0;
-int const WIDTH = 600;
-int const HEIGHT = 450;
+int const WIDTH = sf::VideoMode::getDesktopMode().width;
+int const HEIGHT = sf::VideoMode::getDesktopMode().height;
+float G = 1;
 
 sf::Vector2f max_speed(6.f, 6.f);
-int const boids_nbr = 300;
+int const boids_nbr = 600;
 boid boids[boids_nbr];
+std::vector<int> in_range;
 
-int separation_range = 20;
+int separation_range = 40;
 int alignment_range = 60;
 int cohesion_range = 50;
-float turnfactor = 0.5;
+float turnfactor = 0.32;
 
-float separation_force = 0.045;
+
+float separation_force = 0.004;
+float alignment_force = 0.01;
 float cohesion_force = 0.03;
-float alignment_force = 0.02;
 
 sf::Vector2f separation(int index) {
     sf::Vector2f separation_vec(0, 0);
@@ -56,7 +59,23 @@ sf::Vector2f cohesion(int index) {
         }
     }
     return cohesion_vec/(float)neighbors - boids[index].pos;
+}
 
+void insertionSort(std::vector<int> arr, int n)
+{
+    int i, key, j;
+    for (i = 1; i < n; i++)
+    {
+        key = arr[i];
+        j = i - 1;
+ 
+        while (j >= 0 && Vector2Distance(boids[arr[j]].pos , boids[key].pos) <= Vector2Distance(boids[key].pos , boids[j].pos))
+        {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
 }
 
 int main()
@@ -69,6 +88,13 @@ int main()
         boids[i].pos = sf::Vector2f(rand() % WIDTH, rand() % HEIGHT);
         boids[i].vel = Vector2Normalize( sf::Vector2f(rand() % 2*WIDTH - WIDTH, rand() % 2*HEIGHT - HEIGHT) ) * 8.f;
     }
+
+    sf::ConvexShape triangle;
+    triangle.setPointCount(3);
+    triangle.setFillColor(sf::Color::White);
+    triangle.setPoint(0, sf::Vector2f(0, -4));
+    triangle.setPoint(1, sf::Vector2f(0, 4));
+    triangle.setPoint(2, sf::Vector2f(10, 0));
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "dop :)");
     window.setFramerateLimit(30);
@@ -87,50 +113,84 @@ int main()
         }
 
         // update part
+        #pragma acc parallel loop
         for (int i = 0; i < boids_nbr; ++i){
+            //detect  in_range boids
+            // int min_range = std::min(alignment_range, std::min(cohesion_range, separation_range));
+            // for (int j = 0; j < boids_nbr; ++j){
+            //     if (j != i && Vector2Distance(boids[i].pos , boids[j].pos) <= min_range){
+            //         in_range.push_back(j);
+            //     }
+            // }
+
+            //sort in range boids by dist to boid[i]
+            // insertionSort(in_range, in_range.size());
+            // for (int index = 1; index < in_range.size(); index++){
+            //     int new_pos = -1;
+            //     for (int j = index - 1; j >= 0; j--){
+            //         if(Vector2Distance(boids[in_range[i]].pos , boids[in_range[index]].pos) <= Vector2Distance(boids[in_range[i]].pos , boids[in_range[j]].pos)) {
+            //             new_pos = j;
+            //         }
+            //     }
+
+            //     //set it to its new position
+            //     if(new_pos >= 0) {
+            //         int dep =  in_range[index];
+            //         in_range.insert(in_range.begin() + new_pos, dep);
+            //         in_range.erase(in_range.begin()+ index+1);
+            //     }
+            // }
+
+            // for (int index = 0; index < in_range.size(); index++) {
+            //     std::cout << Vector2Distance(boids[i].pos , boids[index].pos) << " ";
+            // }
+            // std::cout << " \n";
+            
+
             sf::Vector2f v1 = separation(i);
             sf::Vector2f v2 = alignment(i);
             sf::Vector2f v3 = cohesion(i);
 
             if(mouse_was_pressed) {
                 sf::Vector2f force = sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y) - boids[i].pos;
-                boids[i].vel += Vector2Normalize(force)*5.f;
+                float amp = (G * 50)/Vector2Length(force) * Vector2Length(force);
+                boids[i].vel += Vector2Normalize(force)*amp;
             }
             boids[i].vel += v1*separation_force + v2*alignment_force + v3*cohesion_force ;
             boids[i].vel = Vector2Clamp(boids[i].vel, -max_speed, max_speed);
             boids[i].pos += boids[i].vel;
 
             //screen edges: wrap arrond
-            {
-            if (boids[i].pos.x > WIDTH) {
-                boids[i].pos.x = 0;
-            }
-            if (boids[i].pos.x < 0) {
-                boids[i].pos.x = WIDTH;
-            }
-            if (boids[i].pos.y > HEIGHT) {
-                boids[i].pos.y = 0;
-            }
-            if (boids[i].pos.y  < 0) {
-                boids[i].pos.y = HEIGHT;
-            }
-            }
-
-            //screen edge: repultion force methode
             // {
-            // if (boids[i].pos.x > WIDTH-200) {
-            //     boids[i].vel.x -= turnfactor;
+            // if (boids[i].pos.x > WIDTH) {
+            //     boids[i].pos.x = 0;
             // }
-            // if (boids[i].pos.x < 200) {
-            //     boids[i].vel.x += turnfactor;
+            // if (boids[i].pos.x < 0) {
+            //     boids[i].pos.x = WIDTH;
             // }
-            // if (boids[i].pos.y > HEIGHT-150) {
-            //     boids[i].vel.y -= turnfactor;
+            // if (boids[i].pos.y > HEIGHT) {
+            //     boids[i].pos.y = 0;
             // }
-            // if (boids[i].pos.y  < 150) {
-            //     boids[i].vel.y += turnfactor;
+            // if (boids[i].pos.y  < 0) {
+            //     boids[i].pos.y = HEIGHT;
             // }
             // }
+
+            // //screen edge: repultion force methode
+            {
+            if (boids[i].pos.x > WIDTH - WIDTH*0.2) {
+                boids[i].vel.x -= turnfactor;
+            }
+            if (boids[i].pos.x < WIDTH*0.2) {
+                boids[i].vel.x += turnfactor;
+            }
+            if (boids[i].pos.y > HEIGHT - HEIGHT*0.2) {
+                boids[i].vel.y -= turnfactor;
+            }
+            if (boids[i].pos.y  < HEIGHT*0.2) {
+                boids[i].vel.y += turnfactor;
+            }
+            }
 
         }
         mouse_was_pressed = false;
@@ -138,12 +198,7 @@ int main()
         window.clear();
         //drawing part
         for (int i = 0; i < boids_nbr; ++i){
-            sf::ConvexShape triangle;
-            triangle.setPointCount(3);
-            triangle.setFillColor(sf::Color::White);
-            triangle.setPoint(0, sf::Vector2f(0, -3));
-            triangle.setPoint(1, sf::Vector2f(0, 3));
-            triangle.setPoint(2, sf::Vector2f(10, 0));
+            triangle.setPoint(2, sf::Vector2f(Remap(Vector2Length(boids[i].vel), 0, max_speed.x, 4, 10), 0));
             triangle.setRotation(RAD2DEG*Vector2Angle(sf::Vector2f(1, 0), boids[i].vel));
             triangle.setPosition(boids[i].pos);
             window.draw(triangle);

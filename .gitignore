@@ -1,14 +1,17 @@
 
-attractor/mmm
+mmm/
 SFML-Collection/
 testing/
 movio/
+glm/
+.codelime/
 
 *.mp4
 *.gif
 *.o
 *.out
 *.xml
+*.png
 
 .project
 .cproject

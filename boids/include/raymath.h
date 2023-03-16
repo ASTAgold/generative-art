@@ -267,7 +267,7 @@ RMAPI Vector2 Vector2SubtractValue(Vector2 v, float sub)
 }
 
 // Calculate vector length
-RMAPI float Vector2Length(Vector2 v)
+RMAPI float Vector2Length(sf::Vector2f v)
 {
     float result = sqrtf((v.x*v.x) + (v.y*v.y));
 

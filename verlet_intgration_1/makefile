@@ -1,12 +1,12 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = main.cpp
+OBJS = main.cpp include/particle_system.cpp
 
 #CC specifies which compiler we're using
 CC = g++
 
 #COMPILER_FLAGS specifies the additional compilation options we're using
 # -w suppresses all warnings
-COMPILER_FLAGS = -w
+COMPILER_FLAGS = -w -O2 -pg
 
 #LINKER_FLAGS specifies the libraries we're linking against
 LINKER_FLAGS =  -lsfml-graphics -lsfml-window -lsfml-system

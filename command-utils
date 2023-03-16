@@ -1,0 +1,6 @@
+//////profiling
+add -pg compile flag then run to get the image
+gprof path/to/executable | gprof2dot  -s | dot -Gdpi=300 -Tpng -o profile.png
+
+///// FORMAT : -c:v libx264 -crf 20 -preset slow -vf format=yuv420p -c:a aac -movflags +faststart
+ffmpeg -framerate 30 -i movio/%d.png -c:v libx264 -crf 20 -preset slow -vf format=yuv420p -c:a aac -movflags +faststart output.gif

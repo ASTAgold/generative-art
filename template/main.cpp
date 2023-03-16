@@ -1,17 +1,21 @@
 #include <SFML/Graphics.hpp>
-#include <raymath.h>
-#include <iostream>
+#include "../glm/ext.hpp"
+#include <stdio.h>
 
+sf::Vector2f GLM2SF(glm::vec2 input)
+{
+    return sf::Vector2(input.x, input.y);
+}
+
+int framecount = 0;
+int WIDTH = 600;
+int HEIGHT = 600;
 
 int main()
 {
-	int framecount = 0;
-    int width = 600;
-    int height = 600;
+    //////// SETUP
 
-
-
-    sf::RenderWindow window(sf::VideoMode(width, height), "dop :)");
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "dop :)");
     window.setFramerateLimit(60);
 
     while (window.isOpen())
@@ -23,28 +27,15 @@ int main()
                 window.close();
         }
 
-
-        // update part
-
-
+        //////// UPDATE
 
         window.clear();
-
-        //drawing part
-
-
+        //////// DRAW
 
         window.display();
 
-
-
-
-        std::cout << std::to_string(framecount) + " \n";
-
-
+        // printf("%d\n", framecount);
         framecount++;
-
     }
-
     return 0;
 }
