@@ -13,7 +13,7 @@ int const HEIGHT = sf::VideoMode::getDesktopMode().height;
 float G = 1;
 
 sf::Vector2f max_speed(6.f, 6.f);
-int const boids_nbr = 600;
+int const boids_nbr = 800;
 boid boids[boids_nbr];
 std::vector<int> in_range;
 

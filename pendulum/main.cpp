@@ -13,15 +13,11 @@ const int HEIGHT = 450;
 const int PART_RADUIS = 3;
 const int PART_RESOLUTION = 5;
 
-float clothWidth = 300;
-float clothHeight = 300;
-int cols = 10;
-int rows = 10;
+float WIND_FORCE = 12;
 
-float lenghtX = clothWidth/cols;
-float lenghtY = clothHeight/rows;
-
-float WIND_FORCE = 6;
+int n = 6;
+int pend_lengh = 40;
+float lenght = pend_lengh/n;
 
 // [0,1]
 int random(int max)
@@ -159,48 +155,21 @@ int main()
     std::vector<float> invmass;
     // std::vector<glm::vec2> prev_particles;
     std::vector<dist_constraint> distance_constraints;
-    particles.reserve(cols*rows+1);
-    distance_constraints.reserve(cols*rows*2);
-    for (int j = 0; j < rows; j++)
+    for (int i = 0; i < n; i++)
     {
-        for (int i = 0; i < cols; i++)
-        {
-            particles.push_back({i*lenghtX + (WIDTH - clothWidth)/2, j*lenghtY + (HEIGHT - clothHeight)/2});
-            invmass.push_back(1);
-        }
+        particles.push_back({i*lenght, HEIGHT*0.8});
+        invmass.push_back(1);
     }
-    // invmass[0] = 0;
+    invmass[0] = 0;
     // invmass[floor(cols/2)] = 0;
     // for (int i = 0; i < cols; i++)
     // {
     //     invmass[i] = (i % 2 == 1) ? 0.00000000000000001: 1;
     // }
     
-    float diagonale = sqrt(lenghtX*lenghtX + lenghtY*lenghtY);
-    for (int i = 0; i < cols; i++)
-    {    
-        for (int j = 0; j < rows; j++)
-        {
-            int index = i + j*cols;
-
-            bool I = false;
-            if(i != cols-1) 
-            {
-                distance_constraints.push_back({index, i+1 + j*cols, lenghtX});
-                I = true;
-            }
-            bool J = false;
-            if(j != rows-1) 
-            {
-                distance_constraints.push_back({index, i + (j+1)*cols, lenghtY});
-                J = true;
-            }
-            if(I && J)
-            {
-                distance_constraints.push_back({index, i+1 + (j+1)*cols, diagonale});
-                distance_constraints.push_back({i+1 + j*cols, i + (j+1)*cols, diagonale});
-            }
-        }
+    for (int i = 0; i < n-1; i++)
+    {
+        distance_constraints.push_back({i, i+1, random(pend_lengh)});
     }
     particle_system PARTICLE_SYSTEM(particles, particles, invmass, distance_constraints);
 
@@ -240,6 +209,8 @@ int main()
         window.display();
 
         //////// UPDATE
+        PARTICLE_SYSTEM.m_pos[0] = {sf::Mouse::getPosition().x - 100, sf::Mouse::getPosition().y - 100};
+
         timer.restart();
         PARTICLE_SYSTEM.update(noise, 0.4, (float)framecount);
         sf::Time elapced = timer.getElapsedTime();

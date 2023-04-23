@@ -5,6 +5,7 @@ testing/
 movio/
 glm/
 .codelime/
+gui_test/
 
 *.mp4
 *.gif

@@ -10,7 +10,7 @@ COMPILER_DEBUG_FLAGS = -O0 -pg -g -ggdb
 COMPILER_RELEASE_FLAGS = -w -Ofast
 
 #LINKER_FLAGS specifies the libraries we're linking against
-LINKER_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+LINKER_FLAGS = -ltgui -lsfml-graphics -lsfml-window -lsfml-system
 
 #OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = sfml-app
